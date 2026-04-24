@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Auto Saver - නම්බර් ඔටෝ සේව්</title>
+    
+    <!-- PWA Setup -->
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiV2hhdHNBcHAgQXV0byBTYXZlciIsInNob3J0X25hbWUiOiJBdXRvIFNhdmVyIiwic3RhcnRfdXJsIjoiLi8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMjVEMzY2IiwidGhlbWVfY29sb3IiOiIjMTI4QzdFIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK2Jhc2U2NCxQSE4yWGs1HEFsaEJ3Y0hKdmJHd2dMMGN3SGs5dVpRPT0iLCJzaXplcyI6IjE5MngxOTIifV19">
+    <meta name="theme-color" content="#25D366">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Auto Saver">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: system-ui, -apple-system, sans-serif; 
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            min-height: 100vh; 
+            padding: 20px;
+        }
+        .container { 
+            max-width: 500px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 25px; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header { 
+            background: linear-gradient(45deg, #25D366, #00D4AA); 
+            color: white; 
+            padding: 30px; 
+            text-align: center;
+        }
+        .logo { font-size: 3.5em; margin-bottom: 10px; }
+        .title { font-size: 1.4em; font-weight: 700; }
+        .subtitle { opacity: 0.9; margin-top: 5px; }
+        
+        .setup-guide { padding: 30px; background: #f8f9fa; }
+        .step { display: flex; align-items: center; margin-bottom: 25px; padding: 20px; background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .step-number { width: 50px; height: 50px; background: #25D366; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2em; margin-right: 20px; }
+        .step-text { flex: 1; }
+        .step-title { font-weight: 600; margin-bottom: 5px; color: #333; }
+        .step-desc { color: #666; line-height: 1.5; }
+        
+        .install-btn { 
+            display: block; 
+            width: 100%; 
+            padding: 20px; 
+            background: linear-gradient(45deg, #25D366, #00D4AA); 
+            color: white; 
+            border: none; 
+            border-radius: 15px; 
+            font-size: 1.2em; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: all 0.3s ease;
+            margin: 20px 0;
+        }
+        .install-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(37,211,102,0.4); }
+        .install-btn:active { transform: translateY(0); }
+        
+        .features { padding: 30px; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; margin-top: 20px; }
+        .feature { text-align: center; }
+        .feature-icon { font-size: 2.5em; margin-bottom: 10px; }
+        
+        .status { padding: 20px 30px 30px; text-align: center; }
+        .status.active { background: #d4edda; color: #155724; }
+        .status-badge { display: inline-block; padding: 8px 20px; background: #28a745; color: white; border-radius: 25px; font-weight: 600; }
+        
+        @media (max-width: 480px) {
+            .container { margin: 10px; border-radius: 20px; }
+            .header { padding: 25px 20px; }
+            .setup-guide, .features { padding: 25px 20px; }
+        }
+        
+        /* PWA Install Prompt */
+        .install-prompt { 
+            position: fixed; 
+            bottom: 20px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            background: white; 
+            padding: 20px 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3); 
+            max-width: 90vw; 
+            z-index: 10000;
+            display: none;
+        }
+        .install-prompt.show { display: block; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateX(-50%) translateY(100px); opacity: 0; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">📱💾</div>
+            <div class="title">WhatsApp Auto Saver</div>
+            <div class="subtitle">නම්බර් ඔටෝමැටික් සේව් වෙනවා!</div>
+        </div>
+        
+        <div class="setup-guide">
+            <h3 style="text-align: center; margin-bottom: 30px; color: #333;">3 Steps විතරයි! 🚀</h3>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-text">
+                    <div class="step-title">Install කරන්න</div>
+                    <div class="step-desc">Home screen එකට add කරලා app වගේ use කරන්න</div>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-text">
+                    <div class="step-title">WhatsApp Web Open</div>
+                    <div class="step-desc">Auto detect වෙලා messages scan කරනවා</div>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-text">
+                    <div class="step-title">Auto Save!</div>
+                    <div class="step-desc">Messages වල phone numbers auto save වෙනවා ✅</div>
+                </div>
+            </div>
+            
+            <button class="install-btn" onclick="installPWA()">
+                🚀 Install App (1 Click)
+            </button>
+        </div>
+        
+        <div class="features">
+            <h3 style="text-align: center; margin-bottom: 20px; color: #333;">✨ Features</h3>
+            <div class="feature-grid">
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <div>Real-time Auto Save</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🇱🇰</div>
+                    <div>SL Numbers Only</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <div>Stats & History</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔒</div>
+                    <div>Private Storage</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status" id="status">
+            <div class="status-badge">Ready to Install!</div>
+            <p>Users ලට share කරන්න පුළුවන් link එක:</p>
+            <code style="background: #f0f0f0; padding: 8px 12px; border-radius: 8px; font-size: 0.9em; word-break: break-all;">
+                yourdomain.com/whatsapp-auto-saver.html
+            </code>
+        </div>
+    </div>
+    
+    <!-- Install Prompt -->
+    <div class="install-prompt" id="installPrompt">
+        <h4>📱 App Install කරන්න!</h4>
+        <p>Home screen එකට add කරලා app වගේ use කරන්න</p>
+        <button class="install-btn" onclick="deferredPrompt && deferredPrompt.prompt()">Install Now</button>
+        <button onclick="hideInstallPrompt()" style="margin-left: 10px; background: #6c757d;">Later</button>
+    </div>
+
+    <script>
+        let deferredPrompt;
+        
+        // PWA Install
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallPrompt();
+        });
+        
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(() => {
+                    deferredPrompt = null;
+                });
+            } else {
+                // Fallback for iOS
+                alert('Home screen එකට add කරන්න:\nSafari → Share → Add to Home Screen');
+            }
+        }
+        
+        function showInstallPrompt() {
+            document.getElementById('installPrompt').classList.add('show');
+        }
+        
+        function hideInstallPrompt() {
+            document.getElementById('installPrompt').classList.remove('show');
+        }
+        
+        // Check if already installed
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA installed!');
+        });
+        
+        // Service Worker (Optional - for offline)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:text/javascript;base64,' + btoa(`
+                self.addEventListener('install', e => {
+                    self.skipWaiting();
+                });
+                self.addEventListener('activate', e => {
+                    self.clients.claim();
+                });
+            `));
+        }
+    </script>
+</body>
+</html>
